@@ -39,78 +39,111 @@ Step 4 : Test for the XOR patterns.
 
 ```
 import pandas as pd
+import numpy as np
 import io
 import matplotlib.pyplot as plt
 
-x=np.array([[0,0,1,1],[0,1,0,1]])
-y=np.array([[0,1,1,0]])
-n_x=2
-n_y=1
-n_h=2
-m=x.shape[1]
-lr=0.1
+# Input and Output for XOR
+x = np.array([[0,0,1,1],
+              [0,1,0,1]])
+
+y = np.array([[0,1,1,0]])
+
+# Number of neurons
+n_x = 2
+n_h = 2
+n_y = 1
+
+m = x.shape[1]
+lr = 0.1
+
+# Initialize weights
 np.random.seed(2)
-w1=np.random.rand(n_h,n_x) 
-w2=np.random.rand(n_y,n_h)
-losses=[]
 
+w1 = np.random.rand(n_h, n_x)
+w2 = np.random.rand(n_y, n_h)
+
+losses = []
+
+# Sigmoid function
 def sigmoid(z):
-  z=1/(1+np.exp(-z))
-  return z
+    return 1 / (1 + np.exp(-z))
 
-def forward_prop(w1,w2,x):
-  z1=np.dot(w1,x)
-  a1=sigmoid(z1)
-  z2=np.dot(w2,a1)
-  a2=sigmoid(z2)
-  return z1,a1,z2,a2
+# Forward propagation
+def forward_prop(w1, w2, x):
+    z1 = np.dot(w1, x)
+    a1 = sigmoid(z1)
 
-def back_prop(m,w1,w2,z1,a1,z2,a2,y):
-  dz2=a2-y
-  dw2=np.dot(dz2,a1.T)/m
-  dz1=np.dot(w2.T,dz2)*a1*(1-a1)
-  dw1=np.dot(dz1,x.T)/m
-  dw1=np.reshape(dw1,w1.shape)
-  dw2=np.reshape(dw2,w2.shape)
-  return dz2,dw2,dz1,dw1
+    z2 = np.dot(w2, a1)
+    a2 = sigmoid(z2)
 
-iterations=10000
+    return z1, a1, z2, a2
+
+# Backward propagation
+def back_prop(m, w1, w2, z1, a1, z2, a2, y):
+    
+    dz2 = a2 - y
+    dw2 = np.dot(dz2, a1.T) / m
+
+    dz1 = np.dot(w2.T, dz2) * a1 * (1 - a1)
+    dw1 = np.dot(dz1, x.T) / m
+
+    dw1 = np.reshape(dw1, w1.shape)
+    dw2 = np.reshape(dw2, w2.shape)
+
+    return dw2, dw1
+
+# Training
+iterations = 10000
+
 for i in range(iterations):
-  z1,a1,z2,a2=forward_prop(w1,w2,x)
-  loss= -(1/m)*np.sum(y*np.log(a2)+(1-y)*np.log(1-a2))
-  losses.append(loss)
-  da2,dw2,dz1,dw1=back_prop(m,w1,w2,z1,a1,z2,a2,y)
-  w2=w2-lr*dw2
-  w1=w1-lr*dw1
 
+    z1, a1, z2, a2 = forward_prop(w1, w2, x)
+
+    loss = -(1/m) * np.sum(y*np.log(a2) + (1-y)*np.log(1-a2))
+
+    losses.append(loss)
+
+    dw2, dw1 = back_prop(m, w1, w2, z1, a1, z2, a2, y)
+
+    w2 = w2 - lr * dw2
+    w1 = w1 - lr * dw1
+
+# Plot Loss Graph
 plt.plot(losses)
 plt.xlabel("EPOCHS")
 plt.ylabel("Loss value")
+plt.title("Loss Curve")
+plt.show()
 
-def predict(w1,w2,input):
-  z1,a1,z2,a2=forward_prop(w1,w2,test)
-  a2=np.squeeze(a2)
-  if a2>=0.5:
-    print([i[0] for i in input],1)
-  else:
-    print([i[0] for i in input],0)
+# Prediction Function
+def predict(w1, w2, test):
 
-print('Input','Output')
-test=np.array([[1],[0]])
-predict(w1,w2,test)
-test=np.array([[1],[1]])
-predict(w1,w2,test)
-test=np.array([[0],[1]])
-predict(w1,w2,test)
-test=np.array([[0],[0]])
-predict(w1,w2,test)
+    z1, a1, z2, a2 = forward_prop(w1, w2, test)
+
+    output = 1 if a2 >= 0.5 else 0
+
+    print(f"{test.T.tolist()}      {output}")
+
+# Testing
+print("Input  Output")
+
+tests = [
+    np.array([[1],[0]]),
+    np.array([[1],[1]]),
+    np.array([[0],[1]]),
+    np.array([[0],[0]])
+]
+
+for test in tests:
+    predict(w1, w2, test)
 ```
 <H3>Output:</H3>
 
 <img width="836" height="539" alt="image" src="https://github.com/user-attachments/assets/c2bb6298-1459-4480-ab58-928925d86faf" />
 
 
-<img width="219" height="122" alt="image" src="https://github.com/user-attachments/assets/362d21ad-248e-47a3-a7e9-f6c1d952f6d1" />
+<img width="309" height="164" alt="image" src="https://github.com/user-attachments/assets/95745255-2694-4ced-a3e1-5fe891463fac" />
 
 
 <H3> Result:</H3>
